@@ -31,16 +31,13 @@ public static class Validator {
 	
 	public static void Initialize() {
 #if UNITY_STANDALONE_WIN
-
-		flagAtivado = true;
-		return;
 		
 		Ativar(0, 0, ref Id_Instalacao, ref Id_Hardware, ref codRetorno, ref codErro, ref diaValidade, ref mesValidade, ref anoValidade, ref flagAtivado);
 		//Ativar(0, Id_Instalacao^Id_Hardware, ref Id_Instalacao, ref Id_Hardware, ref codRetorno, ref codErro, ref diaValidade, ref mesValidade, ref anoValidade, ref flagAtivado);
 		//Ativar(0, 192837, ref Id_Instalacao, ref Id_Hardware, ref codRetorno, ref codErro, ref diaValidade, ref mesValidade, ref anoValidade, ref flagAtivado);
 		//Ativar(15, 0, ref Id_Instalacao, ref Id_Hardware, ref codRetorno, ref codErro, ref diaValidade, ref mesValidade, ref anoValidade, ref flagAtivado);
 		//File.WriteAllText("aaa.txt", ToBase36(Id_Instalacao^Id_Hardware) + " " + ToBase36(FromBase36("1W8LU7VGAHZ3F")^FromBase36("1H65KVEZ0W9JH")));
-		File.WriteAllText("aaa.txt", Common.PLS + " " + codRetorno + " " + codErro + " " + flagAtivado + " " + diaValidade + " " + mesValidade + " " + anoValidade);
+		File.WriteAllText("aaa.txt", Common.PLS + " " + Id_Instalacao + " " + Id_Hardware + " " + codRetorno + " " + codErro + " " + flagAtivado + " " + diaValidade + " " + mesValidade + " " + anoValidade);
 		
 		if (flagAtivado)
 			return;

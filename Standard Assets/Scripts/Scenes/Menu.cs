@@ -38,7 +38,7 @@ public class Menu : MonoBehaviour
 	private static Process currentXMidiProccess = null;
 	private static Process currentSaberProccess = null;
 	private static Process currentGuitarTutorialProccess = null;
-	public static string nextLevelName = Common.SCENE_GUITAR;
+	public static string nextLevelName = Common.SCENE_REAL;
 	
 	private UnityEngine.Object configTemplate;
 	private ConfigDialog configDialog;
@@ -284,11 +284,11 @@ public class Menu : MonoBehaviour
 		}
 		else
 		{
-			if(GUI.Button(new Rect(appButtonRect.x, appButtonRect.y, appButtonRect.width, appButtonRect.height), "5", (nextLevelName == Common.SCENE_GUITAR) ? buttonGuitarSolo[1] : buttonGuitarSolo[0]))
+			/*if(GUI.Button(new Rect(appButtonRect.x, appButtonRect.y, appButtonRect.width, appButtonRect.height), "5", (nextLevelName == Common.SCENE_GUITAR) ? buttonGuitarSolo[1] : buttonGuitarSolo[0]))
 			{
 				nextLevelName = Common.SCENE_GUITAR;
 			}
-			appButtonRect.x += appButtonRect.width;
+			appButtonRect.x += appButtonRect.width;*/
 			
 			/*GUI.skin = (nextLevelName.Contains("GameGuitarMidi")) ? guitarranew2 : guitarranew;
 			if(GUI.Button(new Rect(appButtonRect.x, appButtonRect.y, appButtonRect.width, appButtonRect.height), ""))
@@ -296,10 +296,8 @@ public class Menu : MonoBehaviour
 				nextLevelName = "GameGuitarMidi";
 			}
 			appButtonRect.x += appButtonRect.width;*/
-			GUI.skin = skinToUse;
 		
-		
-			if(GUI.Button(new Rect(appButtonRect.x, appButtonRect.y, appButtonRect.width, appButtonRect.height), "", (nextLevelName == Common.SCENE_PIANO) ? buttonPiano[1] : buttonPiano[0]))
+			/*if(GUI.Button(new Rect(appButtonRect.x, appButtonRect.y, appButtonRect.width, appButtonRect.height), "", (nextLevelName == Common.SCENE_PIANO) ? buttonPiano[1] : buttonPiano[0]))
 			{
 				nextLevelName = Common.SCENE_PIANO;
 			}
@@ -308,13 +306,13 @@ public class Menu : MonoBehaviour
 			{
 				nextLevelName = Common.SCENE_REAL;
 			}
-			appButtonRect.x += appButtonRect.width;
+			appButtonRect.x += appButtonRect.width;*/
 			/*RealHorizontal
 			if(GUI.Button (new Rect(appButtonRect.x, appButtonRect.y, appButtonRect.width, appButtonRect.height), "", (nextLevelName == Common.SCENE_REAL_H) ? buttonRealH[1] : buttonRealH[0]))
 			{
 				nextLevelName = Common.SCENE_REAL_H;
 			}//*/
-			appButtonRect.x += appButtonRect.width;
+			/*appButtonRect.x += appButtonRect.width;
 			if(GUI.Button (new Rect(appButtonRect.x, appButtonRect.y, appButtonRect.width, appButtonRect.height), "", buttonXMidi))
 			{
 				if(currentXMidiProccess == null || currentXMidiProccess.HasExited)
@@ -336,7 +334,7 @@ public class Menu : MonoBehaviour
 					currentSaberProccess.StartInfo.Arguments = "";
 					currentSaberProccess.Start();
 				}
-			}
+			}*/
 		}
 #endif
 		// Selecionar Musicas
@@ -488,16 +486,16 @@ public class Menu : MonoBehaviour
 		GUI.EndGroup();
 		GUI.EndGroup();
 		
-		if(GUI.Button(new Rect(musicSelectorRect.x,musicSelectorRect.y + musicSelectorRect.height + 5,100,40),"",buttonImport))
+		/*if(GUI.Button(new Rect(musicSelectorRect.x,musicSelectorRect.y + musicSelectorRect.height + 5,100,40),"",buttonImport))
 		{
 			ImportMusics();
-		}
+		}*/
 		
 		if(musicSelectedIndex > -1)
 		{
 			if(!renaming)
 			{
-				if(GUI.Button(new Rect(musicSelectorRect.x + 110, musicSelectorRect.y + musicSelectorRect.height + 5,100,40)
+				/*if(GUI.Button(new Rect(musicSelectorRect.x + 110, musicSelectorRect.y + musicSelectorRect.height + 5,100,40)
 					, ""
 					, buttonRemove))
 				{
@@ -511,9 +509,9 @@ public class Menu : MonoBehaviour
 						tmdList.RefreshList();
 						lockMenu = false;
 					};
-				}
+				}*/
 				
-				if(GUI.Button(new Rect(musicSelectorRect.x + 220, musicSelectorRect.y + musicSelectorRect.height + 5,100,40)
+				if(GUI.Button(new Rect(musicSelectorRect.x + 5, musicSelectorRect.y + musicSelectorRect.height + 5,100,40)
 					, ""
 					, buttonRename))
 				{
@@ -521,7 +519,7 @@ public class Menu : MonoBehaviour
 					newTitle = tmdList.sortedMusics[musicSelectedIndex].Title.ToString();
 					renaming = true;
 				}
-#if !UNITY_ANDROID
+/*#if !UNITY_ANDROID
 				if(!TeamLogo)
 				{
 					if(currentXMidiProccess == null || currentXMidiProccess.HasExited)
@@ -540,7 +538,7 @@ public class Menu : MonoBehaviour
 						}
 					}
 				}
-#endif
+#endif*/
 			}
 		}
 		
