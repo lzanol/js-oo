@@ -192,7 +192,7 @@ public class GameView : MonoBehaviour
 		case HudStyle.Standard:
 			GUILayout.BeginHorizontal(GUILayout.Width(Screen.width - MARGIN));
 			
-			GUILayout.Box(logo, GUIStyle.none, GUILayout.Width(200));
+			GUILayout.Box(logo, GUIStyle.none, GUILayout.Height(90));
 			GUILayout.FlexibleSpace();
 			
 			if (scoreEnabled)

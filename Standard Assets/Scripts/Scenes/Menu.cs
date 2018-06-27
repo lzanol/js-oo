@@ -193,7 +193,7 @@ public class Menu : MonoBehaviour
 
 			Validator.Status status;
 
-			status = Validator.GetEnabled(2);
+			status = Validator.GetEnabled(0);
 			
 			if (status == Validator.Status.Disabled)
 				OpenActivationDialog();

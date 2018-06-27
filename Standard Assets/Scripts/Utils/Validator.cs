@@ -105,9 +105,11 @@ public static class Validator {
 			return Status.Enabled;
 		
 		long appsCodes = GetAppsCodes();
-		
-		// Se a APP estiver ativa.
-		/*free validator*/ if (Enabled && appsCodes != 0 && (appsCodes & 1 << appId) >> appId == 1)
+		//File.WriteAllText("asdf.txt", appsCodes + " " + Enabled + " " + appId);
+
+		// PLS and app ID validation
+		//if (Enabled && appsCodes != 0 && (appsCodes & 1 << appId) >> appId == 1)
+		if (Enabled && appsCodes != 0)
 			return Status.Enabled;
 		
 		if (!Expired)
