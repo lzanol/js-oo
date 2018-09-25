@@ -1,0 +1,23 @@
+title Virtual Instrument
+
+actor User
+participant Play #lightblue
+participant PlaybackEngine #lightblue
+database SDB
+database RAM
+participant AudioEngine #lightblue
+
+activate Play
+Play->PlaybackEngine:initialize()
+PlaybackEngine->SDB:readBytes()
+PlaybackEngine<<--SDB:bytes
+PlaybackEngine-->>RAM:store
+PlaybackEngine->AudioEngine:initialize(bytes)
+activate AudioEngine
+AudioEngine->AudioEngine:onAudioReady()
+deactivate AudioEngine
+deactivate Play
+activate User
+User->Play:shake
+Play->PlaybackEngine:play(Helpers.coordsToIndex(coords))
+PlaybackEngine->AudioEngine:play(index)
