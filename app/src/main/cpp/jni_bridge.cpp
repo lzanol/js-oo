@@ -49,8 +49,7 @@ Java_com_lzanol_chords_audio_PlaybackEngine_nInitialize(
         JNIEnv *env,
         jclass /*unused*/,
         jlong engineHandle,
-        jfloatArray samplesPtr,
-        jintArray sizesPtr) {
+        jobjectArray notes) {
 
     PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine *>(engineHandle);
 
@@ -59,8 +58,19 @@ Java_com_lzanol_chords_audio_PlaybackEngine_nInitialize(
         return JNI_FALSE;
     }
 
-    engine->initialize(env->GetFloatArrayElements(samplesPtr, 0),
-                       env->GetIntArrayElements(sizesPtr, 0));
+    // converting JNI formats
+    const int totalNotes = env->GetArrayLength(notes);
+    float **notesPtr = new float*[totalNotes];
+    int *sizes = new int[totalNotes];
+    jfloatArray samples;
+
+    for (int i = 0; i < totalNotes; i++) {
+        samples = (jfloatArray)env->GetObjectArrayElement(notes, i);
+        sizes[i] = env->GetArrayLength(samples);
+        notesPtr[i] = env->GetFloatArrayElements(samples, 0);
+    }
+
+    engine->initialize(notesPtr, sizes);
 
     return JNI_TRUE;
 }

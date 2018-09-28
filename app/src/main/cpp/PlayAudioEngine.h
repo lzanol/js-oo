@@ -32,7 +32,7 @@ public:
 
     ~PlayAudioEngine();
 
-    void initialize(float *samples, int *samplesSecsInBytes);
+    void initialize(float **notes, int *sizes);
 
     void setAudioApi(oboe::AudioApi audioApi);
 
@@ -64,12 +64,15 @@ private:
     double mCurrentOutputLatencyMillis = 0;
     int32_t mBufferSizeSelection = kBufferSizeAutomatic;
     bool mIsLatencyDetectionSupported = false;
-    float* mSamples = NULL;
-    int* mSamplesSizes = NULL;
-    int mSamplesIndex = 0;
     oboe::AudioStream *mPlayStream;
     std::unique_ptr<oboe::LatencyTuner> mLatencyTuner;
     std::mutex mRestartingLock;
+
+    struct {
+        float** notes = NULL;
+        int* sizes = NULL;
+        int index = 0;
+    } mSound;
 
     // The SineGenerators generate audio data, feel free to replace with your own audio generators
     std::array<SineGenerator, kMaximumChannelCount> mOscillators;
@@ -89,7 +92,6 @@ private:
     void renderShort(int16_t *buffer, int32_t channelStride, int32_t numFrames);
 
     oboe::Result calculateCurrentOutputLatencyMillis(oboe::AudioStream *stream, double *latencyMillis);
-
 };
 
 #endif //OBOE_HELLOOBOE_PLAYAUDIOENGINE_H

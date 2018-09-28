@@ -18,7 +18,7 @@ object PlaybackEngine {
         System.loadLibrary("audio-engine")
     }
 
-    fun initialize(context: Context, sounds: Array<Sound>, callback: (success: Boolean) -> Unit) {
+    fun initialize(context: Context, resourceId: Int, callback: (success: Boolean) -> Unit) {
         // instantiate native playback engine if it's not done yet
         if (mEngineHandle == 0L) {
             val myAudioMgr = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -28,24 +28,27 @@ object PlaybackEngine {
             val defaultFramesPerBurst = Integer.parseInt(framesPerBurstStr)
 
             //nSetDefaultSampleRate(defaultSampleRate)
-            nSetDefaultSampleRate(48000)
+            // TODO: extract from sound bank config file
+            nSetDefaultSampleRate(44100)
             nSetDefaultFramesPerBurst(defaultFramesPerBurst)
 
             mEngineHandle = nCreateEngine()
         }
 
+        // if instantiation failed
         if (mEngineHandle == 0L) {
             callback(false)
             return
         }
 
-        // loading sounds
-        // Activity can't be referenced in long running tasks to avoid memory leaking
-        SoundBankManager({ context.resources.openRawResource(it) }) { samples ->
-            if (samples != null)
-                callback(nInitialize(mEngineHandle, samples, samples.map { it.size }.toIntArray()))
+        // loading resources
+        // Note: open resource outside, activities can't be referenced in long running tasks to
+        // avoid memory leaking
+        SoundBankReader({ context.resources.openRawResource(it) }) { notes ->
+            if (notes != null)
+                callback(nInitialize(mEngineHandle, notes))
             else callback(false)
-        }.execute(*sounds)
+        }.execute(resourceId)
     }
 
     fun delete() {
@@ -78,7 +81,7 @@ object PlaybackEngine {
     // Native methods
     private external fun nCreateEngine(): Long
     private external fun nDeleteEngine(engineHandle: Long)
-    private external fun nInitialize(engineHandle: Long, samples: Array<FloatArray>, sizes: IntArray): Boolean
+    private external fun nInitialize(engineHandle: Long, notes: Array<FloatArray>): Boolean
     private external fun nSetToneOn(engineHandle: Long, isToneOn: Boolean)
     private external fun nSetAudioApi(engineHandle: Long, audioApi: Int)
     private external fun nSetAudioDeviceId(engineHandle: Long, deviceId: Int)

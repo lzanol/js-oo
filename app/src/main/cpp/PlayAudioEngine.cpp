@@ -100,10 +100,10 @@ void PlayAudioEngine::createPlaybackStream() {
     }
 }
 
-void PlayAudioEngine::initialize(float *samples, int *sizes) {
-    mSamples = samples;
-    mSamplesSizes = sizes;
-    mSamplesIndex = 0;
+void PlayAudioEngine::initialize(float **notes, int *sizes) {
+    mSound.notes = notes;
+    mSound.sizes = sizes;
+    mSound.index = 0;
 }
 
 /*void PlayAudioEngine::prepareOscillators() {
@@ -172,7 +172,7 @@ void PlayAudioEngine::renderFloat(float *buffer, int32_t channelStride, int32_t 
 
     for (int i = 0; i < numFrames; i++) {
         buffer[sampleIndex] = mSamplesIndex < mSamplesSizes[0] ?
-                              mSamples[mSamplesIndex++] : 0;
+                              mNotes[mSamplesIndex++] : 0;
         sampleIndex += channelStride;
     }
 }
@@ -223,9 +223,9 @@ PlayAudioEngine::onAudioReady(oboe::AudioStream *audioStream, void *audioData, i
 
     int32_t channelCount = audioStream->getChannelCount();
 
-    // If the tone is on we need to use our synthesizer to render the audio data for the sine waves
+    // check the samples format
     if (audioStream->getFormat() == oboe::AudioFormat::Float) {
-        if (mIsToneOn && mSamples != NULL) {
+        if (mIsToneOn && mNotes != NULL) {
             //for (int i = 0; i < channelCount; ++i) {
                 //mOscillators[i].render(static_cast<float *>(audioData) + i, channelCount, numFrames);
                 //renderFloat(static_cast<float *>(audioData) + i, channelCount, numFrames);
@@ -234,7 +234,7 @@ PlayAudioEngine::onAudioReady(oboe::AudioStream *audioStream, void *audioData, i
             int totalSamples = numFrames * channelCount;
 
             for (int i = 0; i < totalSamples; i++)
-                buffer[i] = mSamplesIndex < mSamplesSizes[0] ? mSamples[mSamplesIndex++] : 0;
+                buffer[i] = mSamplesIndex < mSamplesSizes[0] ? mNotes[mSamplesIndex++] : 0;
         } else {
             memset(static_cast<uint8_t *>(audioData), 0,
                    sizeof(float) * channelCount * numFrames);

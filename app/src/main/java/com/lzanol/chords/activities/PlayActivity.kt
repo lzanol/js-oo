@@ -7,7 +7,6 @@ import android.view.MotionEvent
 import android.view.View
 import com.lzanol.chords.R
 import com.lzanol.chords.audio.PlaybackEngine
-import com.lzanol.chords.audio.Sound
 import kotlinx.android.synthetic.main.activity_play.*
 
 class PlayActivity : AppCompatActivity() {
@@ -16,21 +15,17 @@ class PlayActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_play)
 
-        PlaybackEngine.initialize(this, arrayOf(
-                Sound(R.raw.piano)
-        )) {
+        PlaybackEngine.initialize(this, R.raw.guitar) {
             if (it) {
                 progressBar.visibility = View.GONE
             } else Log.e("main", "Failed to initialize audio engine")
         }
 
         // configurations
-        /*
-        PlaybackEngine.setChannelCount(Int) // 1,2,3,4,5,6,7,8
-        PlaybackEngine.setBufferSizeInBursts(Int) // 0(auto),1,2,4,8
-        PlaybackEngine.setAudioDeviceId(Int) // AudioDeviceCallback.onAudioDevicesAdded(addedDevices) { addedDevices.id }
-        PlaybackEngine.setAudioApi(Int) // 0(auto),1("OpenSL ES"),2("AAudio")
-        */
+        //PlaybackEngine.setChannelCount(Int) // 1,2,3,4,5,6,7,8
+        //PlaybackEngine.setBufferSizeInBursts(Int) // 0(auto),1,2,4,8
+        //PlaybackEngine.setAudioDeviceId(Int) // AudioDeviceCallback.onAudioDevicesAdded(addedDevices) { addedDevices.id }
+        //PlaybackEngine.setAudioApi(Int) // 0(auto),1("OpenSL ES"),2("AAudio")
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
