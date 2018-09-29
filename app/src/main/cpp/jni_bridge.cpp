@@ -60,34 +60,36 @@ Java_com_lzanol_chords_audio_PlaybackEngine_nInitialize(
 
     // converting JNI formats
     const int totalNotes = env->GetArrayLength(notes);
-    float **notesPtr = new float*[totalNotes];
+    float **notesPtr = new float *[totalNotes];
     int *sizes = new int[totalNotes];
     jfloatArray samples;
 
     for (int i = 0; i < totalNotes; i++) {
-        samples = (jfloatArray)env->GetObjectArrayElement(notes, i);
+        samples = (jfloatArray) env->GetObjectArrayElement(notes, i);
         sizes[i] = env->GetArrayLength(samples);
         notesPtr[i] = env->GetFloatArrayElements(samples, 0);
     }
 
-    engine->initialize(notesPtr, sizes);
+    engine->initialize(notesPtr, sizes, totalNotes);
 
     return JNI_TRUE;
 }
 
 JNIEXPORT void JNICALL
-Java_com_lzanol_chords_audio_PlaybackEngine_nSetToneOn(
+Java_com_lzanol_chords_audio_PlaybackEngine_nPlayNotes(
         JNIEnv *env,
         jclass,
         jlong engineHandle,
-        jboolean isToneOn) {
+        jintArray indexes) {
 
     PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine *>(engineHandle);
+
     if (engine == nullptr) {
         LOGE("Engine handle is invalid, call createHandle() to create a new one");
         return;
     }
-    engine->setToneOn(isToneOn);
+
+    engine->playNotes(env->GetIntArrayElements(indexes, 0), env->GetArrayLength(indexes));
 }
 
 JNIEXPORT void JNICALL
@@ -97,7 +99,7 @@ Java_com_lzanol_chords_audio_PlaybackEngine_nSetAudioApi(
         jlong engineHandle,
         jint audioApi) {
 
-    PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine*>(engineHandle);
+    PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine *>(engineHandle);
     if (engine == nullptr) {
         LOGE("Engine handle is invalid, call createHandle() to create a new one");
         return;
@@ -114,7 +116,7 @@ Java_com_lzanol_chords_audio_PlaybackEngine_nSetAudioDeviceId(
         jlong engineHandle,
         jint deviceId) {
 
-    PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine*>(engineHandle);
+    PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine *>(engineHandle);
     if (engine == nullptr) {
         LOGE("Engine handle is invalid, call createHandle() to create a new one");
         return;
@@ -129,7 +131,7 @@ Java_com_lzanol_chords_audio_PlaybackEngine_nSetChannelCount(
         jlong engineHandle,
         jint channelCount) {
 
-    PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine*>(engineHandle);
+    PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine *>(engineHandle);
     if (engine == nullptr) {
         LOGE("Engine handle is invalid, call createHandle() to create a new one");
         return;
@@ -144,7 +146,7 @@ Java_com_lzanol_chords_audio_PlaybackEngine_nSetBufferSizeInBursts(
         jlong engineHandle,
         jint bufferSizeInBursts) {
 
-    PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine*>(engineHandle);
+    PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine *>(engineHandle);
     if (engine == nullptr) {
         LOGE("Engine handle is invalid, call createHandle() to create a new one");
         return;
@@ -159,7 +161,7 @@ Java_com_lzanol_chords_audio_PlaybackEngine_nGetCurrentOutputLatencyMillis(
         jclass,
         jlong engineHandle) {
 
-    PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine*>(engineHandle);
+    PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine *>(engineHandle);
     if (engine == nullptr) {
         LOGE("Engine is null, you must call createEngine before calling this method");
         return static_cast<jdouble>(-1.0);
@@ -173,7 +175,7 @@ Java_com_lzanol_chords_audio_PlaybackEngine_nIsLatencyDetectionSupported(
         jclass type,
         jlong engineHandle) {
 
-    PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine*>(engineHandle);
+    PlayAudioEngine *engine = reinterpret_cast<PlayAudioEngine *>(engineHandle);
     if (engine == nullptr) {
         LOGE("Engine is null, you must call createEngine before calling this method");
         return JNI_FALSE;
@@ -184,15 +186,15 @@ Java_com_lzanol_chords_audio_PlaybackEngine_nIsLatencyDetectionSupported(
 
 JNIEXPORT void JNICALL
 Java_com_lzanol_chords_audio_PlaybackEngine_nSetDefaultSampleRate(JNIEnv *env,
-                                                                                  jclass type,
-                                                                                  jint sampleRate) {
+                                                                  jclass type,
+                                                                  jint sampleRate) {
     oboe::DefaultStreamValues::SampleRate = (int32_t) sampleRate;
 }
 
 JNIEXPORT void JNICALL
 Java_com_lzanol_chords_audio_PlaybackEngine_nSetDefaultFramesPerBurst(JNIEnv *env,
-                                                                                      jclass type,
-                                                                                      jint framesPerBurst) {
+                                                                      jclass type,
+                                                                      jint framesPerBurst) {
     oboe::DefaultStreamValues::FramesPerBurst = (int32_t) framesPerBurst;
 }
 

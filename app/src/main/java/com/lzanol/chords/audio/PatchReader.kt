@@ -23,7 +23,7 @@ class PatchReader(
                 val buffer = ByteBuffer.wrap(it.readBytes())
                 var offset = 0
 
-                span = 60
+                span = 20
 
                 buffer.order(ByteOrder.LITTLE_ENDIAN)
 

@@ -15,7 +15,7 @@ class PlayActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_play)
 
-        PlaybackEngine.initialize(this, R.raw.guitar, {
+        PlaybackEngine.initialize(this, R.raw.piano, {
             noteIndex, totalNotes ->
             progressText.text = String.format("%d/%d", noteIndex + 1, totalNotes)
         }) {
@@ -34,8 +34,8 @@ class PlayActivity : AppCompatActivity() {
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> PlaybackEngine.setToneOn(true)
-            MotionEvent.ACTION_UP -> PlaybackEngine.setToneOn(false)
+            MotionEvent.ACTION_DOWN -> PlaybackEngine.playNotes(intArrayOf(0, 19))
+            MotionEvent.ACTION_UP -> PlaybackEngine.playNotes(intArrayOf())
         }
 
         return super.onTouchEvent(event)

@@ -32,13 +32,13 @@ public:
 
     ~PlayAudioEngine();
 
-    void initialize(float **notes, int *sizes);
+    void initialize(float **notes, int *sizes, int total);
 
     void setAudioApi(oboe::AudioApi audioApi);
 
     void setDeviceId(int32_t deviceId);
 
-    void setToneOn(bool isToneOn);
+    void playNotes(int* indexes, int total);
 
     void setBufferSizeInBursts(int32_t numBursts);
 
@@ -59,7 +59,6 @@ private:
     int32_t mPlaybackDeviceId = oboe::kUnspecified;
     int32_t mSampleRate;
     int32_t mChannelCount;
-    bool mIsToneOn = false;
     int32_t mFramesPerBurst;
     double mCurrentOutputLatencyMillis = 0;
     int32_t mBufferSizeSelection = kBufferSizeAutomatic;
@@ -71,8 +70,14 @@ private:
     struct {
         float** notes = NULL;
         int* sizes = NULL;
-        int pos = 0;
+        int* pos = NULL;
+        int total = 0;
     } mPatch;
+
+    struct {
+        int* indexes = NULL;
+        int total = 0;
+    } mNotes;
 
     // The SineGenerators generate audio data, feel free to replace with your own audio generators
     std::array<SineGenerator, kMaximumChannelCount> mOscillators;

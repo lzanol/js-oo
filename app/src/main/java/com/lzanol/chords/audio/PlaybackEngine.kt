@@ -28,14 +28,14 @@ object PlaybackEngine {
         // instantiate native playback engine if it's not done yet
         if (mEngineHandle == 0L) {
             val myAudioMgr = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            //val sampleRateStr = myAudioMgr.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
-            //val defaultSampleRate = Integer.parseInt(sampleRateStr)
+            val sampleRateStr = myAudioMgr.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
+            val defaultSampleRate = Integer.parseInt(sampleRateStr)
             val framesPerBurstStr = myAudioMgr.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER)
             val defaultFramesPerBurst = Integer.parseInt(framesPerBurstStr)
 
-            //nSetDefaultSampleRate(defaultSampleRate)
             // TODO: extract from sound bank config file
-            nSetDefaultSampleRate(44100)
+            //nSetDefaultSampleRate(44100)
+            nSetDefaultSampleRate(defaultSampleRate)
             nSetDefaultFramesPerBurst(defaultFramesPerBurst)
 
             mEngineHandle = nCreateEngine()
@@ -70,8 +70,8 @@ object PlaybackEngine {
         mEngineHandle = 0
     }
 
-    fun setToneOn(isToneOn: Boolean) {
-        nSetToneOn(mEngineHandle, isToneOn)
+    fun playNotes(indexes: IntArray) {
+        nPlayNotes(mEngineHandle, indexes)
     }
 
     fun setAudioApi(audioApi: Int) {
@@ -90,12 +90,10 @@ object PlaybackEngine {
         if (mEngineHandle != 0L) nSetBufferSizeInBursts(mEngineHandle, bufferSizeInBursts)
     }
 
-    // Native methods
     private external fun nCreateEngine(): Long
-
     private external fun nDeleteEngine(engineHandle: Long)
     private external fun nInitialize(engineHandle: Long, notes: Array<FloatArray>): Boolean
-    private external fun nSetToneOn(engineHandle: Long, isToneOn: Boolean)
+    private external fun nPlayNotes(engineHandle: Long, indexes: IntArray)
     private external fun nSetAudioApi(engineHandle: Long, audioApi: Int)
     private external fun nSetAudioDeviceId(engineHandle: Long, deviceId: Int)
     private external fun nSetChannelCount(mEngineHandle: Long, channelCount: Int)

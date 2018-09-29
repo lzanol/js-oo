@@ -100,10 +100,11 @@ void PlayAudioEngine::createPlaybackStream() {
     }
 }
 
-void PlayAudioEngine::initialize(float **notes, int *sizes) {
+void PlayAudioEngine::initialize(float **notes, int *sizes, int total) {
     mPatch.notes = notes;
     mPatch.sizes = sizes;
-    mPatch.pos = 0;
+    mPatch.pos = new int[total];
+    mPatch.total = total;
 }
 
 /**
@@ -138,9 +139,12 @@ void PlayAudioEngine::closeOutputStream() {
     }
 }
 
-void PlayAudioEngine::setToneOn(bool isToneOn) {
-    mPatch.pos = 0;
-    mIsToneOn = isToneOn;
+void PlayAudioEngine::playNotes(int *indexes, int total) {
+    for (int i = 0; i < total; i++)
+        mPatch.pos[indexes[i]] = 0;
+
+    mNotes.indexes = indexes;
+    mNotes.total = total;
 }
 
 void PlayAudioEngine::renderShort(int16_t *buffer, int32_t channelStride, int32_t numFrames) {
@@ -190,30 +194,34 @@ PlayAudioEngine::onAudioReady(oboe::AudioStream *audioStream, void *audioData, i
 
     // check the samples format
     if (audioStream->getFormat() == oboe::AudioFormat::Float) {
-        memset(static_cast<uint8_t *>(audioData), 0,
-               sizeof(float) * channelCount * numFrames);
 
-        if (mIsToneOn && mPatch.notes != NULL) {
-            //for (int i = 0; i < channelCount; ++i) {
-            //mOscillators[i].render(static_cast<float *>(audioData) + i, channelCount, numFrames);
-            //renderFloat(static_cast<float *>(audioData) + i, channelCount, numFrames);
-
+        if (mNotes.total > 0 && mPatch.notes != NULL) {
             float *buffer = static_cast<float *>(audioData);
             int totalSamples = numFrames * channelCount;
+            int totalNotes = mNotes.total;
+            int *noteIndexes = new int[totalNotes];
 
-            for (int i = 0; i < totalSamples; i++)
-                buffer[i] += mPatch.pos < mPatch.sizes[0] ?
-                             mPatch.notes[0][mPatch.pos++] : 0;
+            // copy to avoid changing inside the loop
+            std::copy(mNotes.indexes, mNotes.indexes + totalNotes, noteIndexes);
+
+            for (int n = 0, noteIndex; n < totalNotes; n++) {
+                noteIndex = noteIndexes[n];
+
+                for (int i = 0; i < totalSamples; i++)
+                    buffer[i] = mPatch.pos[noteIndex] < mPatch.sizes[noteIndex] ?
+                                mPatch.notes[noteIndex][mPatch.pos[noteIndex]++] : 0;
+            }
+        } else {
+            memset(static_cast<uint8_t *>(audioData), 0,
+                   sizeof(float) * channelCount * numFrames);
         }
     } else {
         memset(static_cast<uint8_t *>(audioData), 0,
                sizeof(int16_t) * channelCount * numFrames);
 
-        if (mIsToneOn) {
-            for (int i = 0; i < channelCount; ++i) {
-                //mOscillators[i].render(static_cast<int16_t *>(audioData) + i, channelCount, numFrames);
+        if (mNotes.total > 0) {
+            for (int i = 0; i < channelCount; ++i)
                 renderShort(static_cast<int16_t *>(audioData) + i, channelCount, numFrames);
-            }
         }
     }
 
