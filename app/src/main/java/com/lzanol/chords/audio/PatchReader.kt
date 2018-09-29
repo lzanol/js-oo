@@ -1,18 +1,19 @@
 package com.lzanol.chords.audio
 
 import android.os.AsyncTask
-import android.util.Log
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class PatchReader(val openResource: (id: Int) -> InputStream,
-                  val callback: (patch: Patch?) -> Unit) :
-        AsyncTask<Int, Void, Patch>() {
-
+class PatchReader(
+        private val openResource: (id: Int) -> InputStream,
+        private val onProgress: ((noteIndex: Int, totalNotes: Int) -> Unit)? = null,
+        private val callback: ((patch: Patch?) -> Unit)? = null
+) : AsyncTask<Int, Int, Patch>() {
     override fun doInBackground(vararg params: Int?): Patch {
         val shortFloatFactor = 1f / Short.MAX_VALUE
         val notes = ArrayList<FloatArray>()
+        var span: Int
 
         for (resourceId in params) {
             if (resourceId == null)
@@ -20,25 +21,27 @@ class PatchReader(val openResource: (id: Int) -> InputStream,
 
             openResource(resourceId).use {
                 val buffer = ByteBuffer.wrap(it.readBytes())
-                val span = 10
                 var offset = 0
+
+                span = 60
 
                 buffer.order(ByteOrder.LITTLE_ENDIAN)
 
                 for (n in 0 until span) {
                     // TODO (generalize): assuming 44.1 kHz, 16-bit (short), 2 channels
-                    val size = 44100 * 4 * 2 * 3
-                    val samples = FloatArray(size)
+                    val totalSamples = 44100 * 2 * 3
+                    val samples = FloatArray(totalSamples)
                     var i = 0
 
                     // converting samples to float
-                    while (i < size) {
-                        samples[i] = buffer.getShort(i * 2) * shortFloatFactor
+                    while (i < totalSamples) {
+                        samples[i] = buffer.getShort(i * 2 + offset) * shortFloatFactor
                         i++
                     }
 
                     notes.add(samples)
-                    offset += size
+                    offset += totalSamples
+                    publishProgress(n, span)
                 }
 
                 /*if (isWave) {
@@ -59,11 +62,16 @@ class PatchReader(val openResource: (id: Int) -> InputStream,
             }
         }
 
-        return Patch(notes.toTypedArray(), "Guitar", 60, 29)
+        return Patch(notes.toTypedArray(), "Guitar", 10, 29)
+    }
+
+    override fun onProgressUpdate(vararg values: Int?) {
+        super.onProgressUpdate(*values)
+        onProgress?.invoke(values[0]!!, values[1]!!)
     }
 
     override fun onPostExecute(result: Patch?) {
         super.onPostExecute(result)
-        callback(result)
+        callback?.invoke(result)
     }
 }

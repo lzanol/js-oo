@@ -22,7 +22,9 @@ object PlaybackEngine {
      * Initializes the internal audio engine allocating into the memory all bytes of each resource
      * given by their [resourceIds] and invokes the [callback] when it's done or fails.
      */
-    fun initialize(context: Context, resourceIds: Array<Int>, callback: (patch: Patch?) -> Unit) {
+    fun initialize(context: Context, resourceIds: Array<Int>,
+                   onProgress: ((noteIndex: Int, totalNotes: Int) -> Unit)? = null,
+                   callback: (patch: Patch?) -> Unit) {
         // instantiate native playback engine if it's not done yet
         if (mEngineHandle == 0L) {
             val myAudioMgr = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -48,7 +50,7 @@ object PlaybackEngine {
         // loading resources
         // Note: open resource outside, activities can't be referenced in long running tasks to
         // avoid memory leaking
-        PatchReader({ context.resources.openRawResource(it) }) { patch ->
+        PatchReader({ context.resources.openRawResource(it) }, onProgress) { patch ->
             if (patch != null)
                 nInitialize(mEngineHandle, patch.notes)
 
@@ -56,8 +58,10 @@ object PlaybackEngine {
         }.execute(*resourceIds)
     }
 
-    fun initialize(context: Context, resourceId: Int, callback: (patch: Patch?) -> Unit) =
-            initialize(context, arrayOf(resourceId), callback)
+    fun initialize(context: Context, resourceId: Int,
+                   onProgress: ((noteIndex: Int, totalNotes: Int) -> Unit)? = null,
+                   callback: (patch: Patch?) -> Unit) =
+            initialize(context, arrayOf(resourceId), onProgress, callback)
 
     fun delete() {
         if (mEngineHandle != 0L)
