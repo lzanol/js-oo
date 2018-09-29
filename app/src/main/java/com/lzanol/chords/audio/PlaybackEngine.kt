@@ -18,7 +18,11 @@ object PlaybackEngine {
         System.loadLibrary("audio-engine")
     }
 
-    fun initialize(context: Context, resourceId: Int, callback: (success: Boolean) -> Unit) {
+    /**
+     * Initializes the internal audio engine allocating into the memory all bytes of each resource
+     * given by their [resourceIds] and invokes the [callback] when it's done or fails.
+     */
+    fun initialize(context: Context, resourceIds: Array<Int>, callback: (patch: Patch?) -> Unit) {
         // instantiate native playback engine if it's not done yet
         if (mEngineHandle == 0L) {
             val myAudioMgr = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -37,19 +41,23 @@ object PlaybackEngine {
 
         // if instantiation failed
         if (mEngineHandle == 0L) {
-            callback(false)
+            callback(null)
             return
         }
 
         // loading resources
         // Note: open resource outside, activities can't be referenced in long running tasks to
         // avoid memory leaking
-        SoundBankReader({ context.resources.openRawResource(it) }) { notes ->
-            if (notes != null)
-                callback(nInitialize(mEngineHandle, notes))
-            else callback(false)
-        }.execute(resourceId)
+        PatchReader({ context.resources.openRawResource(it) }) { patch ->
+            if (patch != null)
+                nInitialize(mEngineHandle, patch.notes)
+
+            callback(patch)
+        }.execute(*resourceIds)
     }
+
+    fun initialize(context: Context, resourceId: Int, callback: (patch: Patch?) -> Unit) =
+            initialize(context, arrayOf(resourceId), callback)
 
     fun delete() {
         if (mEngineHandle != 0L)
@@ -80,6 +88,7 @@ object PlaybackEngine {
 
     // Native methods
     private external fun nCreateEngine(): Long
+
     private external fun nDeleteEngine(engineHandle: Long)
     private external fun nInitialize(engineHandle: Long, notes: Array<FloatArray>): Boolean
     private external fun nSetToneOn(engineHandle: Long, isToneOn: Boolean)

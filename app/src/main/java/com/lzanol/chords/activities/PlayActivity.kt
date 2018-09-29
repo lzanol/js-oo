@@ -16,7 +16,7 @@ class PlayActivity : AppCompatActivity() {
         setContentView(R.layout.activity_play)
 
         PlaybackEngine.initialize(this, R.raw.guitar) {
-            if (it) {
+            if (it != null) {
                 progressBar.visibility = View.GONE
             } else Log.e("main", "Failed to initialize audio engine")
         }

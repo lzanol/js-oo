@@ -71,8 +71,8 @@ private:
     struct {
         float** notes = NULL;
         int* sizes = NULL;
-        int index = 0;
-    } mSound;
+        int pos = 0;
+    } mPatch;
 
     // The SineGenerators generate audio data, feel free to replace with your own audio generators
     std::array<SineGenerator, kMaximumChannelCount> mOscillators;
@@ -84,10 +84,6 @@ private:
     void restartStream();
 
     void setupPlaybackStreamParameters(oboe::AudioStreamBuilder *builder);
-
-    //void prepareOscillators();
-
-    void renderFloat(float *buffer, int32_t channelStride, int32_t numFrames);
 
     void renderShort(int16_t *buffer, int32_t channelStride, int32_t numFrames);
 

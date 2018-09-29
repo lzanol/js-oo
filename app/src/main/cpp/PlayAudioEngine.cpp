@@ -101,22 +101,10 @@ void PlayAudioEngine::createPlaybackStream() {
 }
 
 void PlayAudioEngine::initialize(float **notes, int *sizes) {
-    mSound.notes = notes;
-    mSound.sizes = sizes;
-    mSound.index = 0;
+    mPatch.notes = notes;
+    mPatch.sizes = sizes;
+    mPatch.pos = 0;
 }
-
-/*void PlayAudioEngine::prepareOscillators() {
-
-    double frequency = 440.0;
-    constexpr double interval = 110.0;
-    constexpr float amplitude = 0.25;
-
-    for (SineGenerator &osc : mOscillators){
-        osc.setup(frequency, mSampleRate, amplitude);
-        frequency += interval;
-    }
-}*/
 
 /**
  * Sets the stream parameters which are specific to playback, including device id and the
@@ -151,30 +139,8 @@ void PlayAudioEngine::closeOutputStream() {
 }
 
 void PlayAudioEngine::setToneOn(bool isToneOn) {
-    mSamplesIndex = 0;
+    mPatch.pos = 0;
     mIsToneOn = isToneOn;
-}
-
-/*constexpr float kTwoPi = static_cast<float>(M_PI * 2);
-float phaseIndex = 0;
-
-void PlayAudioEngine::renderFloat(float *buffer, int32_t channelStride, int32_t numFrames) {
-    int sampleIndex = 0;
-
-    for (int i = 0; i < numFrames; i++) {
-        buffer[sampleIndex] = sinf(kTwoPi * 440 / mSampleRate * phaseIndex++) * 0.25f;
-        sampleIndex += channelStride;
-    }
-}*/
-
-void PlayAudioEngine::renderFloat(float *buffer, int32_t channelStride, int32_t numFrames) {
-    int sampleIndex = 0;
-
-    for (int i = 0; i < numFrames; i++) {
-        buffer[sampleIndex] = mSamplesIndex < mSamplesSizes[0] ?
-                              mNotes[mSamplesIndex++] : 0;
-        sampleIndex += channelStride;
-    }
 }
 
 void PlayAudioEngine::renderShort(int16_t *buffer, int32_t channelStride, int32_t numFrames) {
@@ -184,7 +150,6 @@ void PlayAudioEngine::renderShort(int16_t *buffer, int32_t channelStride, int32_
         //buffer[sampleIndex] = static_cast<int16_t>(INT16_MAX * sinf(mPhase) * mAmplitude);
         buffer[sampleIndex] = 0;
         sampleIndex += channelStride;
-
     }
 }
 
@@ -225,29 +190,30 @@ PlayAudioEngine::onAudioReady(oboe::AudioStream *audioStream, void *audioData, i
 
     // check the samples format
     if (audioStream->getFormat() == oboe::AudioFormat::Float) {
-        if (mIsToneOn && mNotes != NULL) {
+        memset(static_cast<uint8_t *>(audioData), 0,
+               sizeof(float) * channelCount * numFrames);
+
+        if (mIsToneOn && mPatch.notes != NULL) {
             //for (int i = 0; i < channelCount; ++i) {
-                //mOscillators[i].render(static_cast<float *>(audioData) + i, channelCount, numFrames);
-                //renderFloat(static_cast<float *>(audioData) + i, channelCount, numFrames);
+            //mOscillators[i].render(static_cast<float *>(audioData) + i, channelCount, numFrames);
+            //renderFloat(static_cast<float *>(audioData) + i, channelCount, numFrames);
 
             float *buffer = static_cast<float *>(audioData);
             int totalSamples = numFrames * channelCount;
 
             for (int i = 0; i < totalSamples; i++)
-                buffer[i] = mSamplesIndex < mSamplesSizes[0] ? mNotes[mSamplesIndex++] : 0;
-        } else {
-            memset(static_cast<uint8_t *>(audioData), 0,
-                   sizeof(float) * channelCount * numFrames);
+                buffer[i] += mPatch.pos < mPatch.sizes[0] ?
+                             mPatch.notes[0][mPatch.pos++] : 0;
         }
     } else {
+        memset(static_cast<uint8_t *>(audioData), 0,
+               sizeof(int16_t) * channelCount * numFrames);
+
         if (mIsToneOn) {
             for (int i = 0; i < channelCount; ++i) {
                 //mOscillators[i].render(static_cast<int16_t *>(audioData) + i, channelCount, numFrames);
                 renderShort(static_cast<int16_t *>(audioData) + i, channelCount, numFrames);
             }
-        } else {
-            memset(static_cast<uint8_t *>(audioData), 0,
-                   sizeof(int16_t) * channelCount * numFrames);
         }
     }
 
