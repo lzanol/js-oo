@@ -11,6 +11,9 @@ class PatchReader(
         private val callback: ((patch: Patch?) -> Unit)? = null
 ) : AsyncTask<Int, Int, Patch>() {
     override fun doInBackground(vararg params: Int?): Patch {
+        // TODO (generalize): assuming 44.1 kHz, 16-bit (short), 2 channels
+        val totalSamples = 44100 * 2 * 3
+        val totalBytes = totalSamples * 2
         val shortFloatFactor = 1f / Short.MAX_VALUE
         val notes = ArrayList<FloatArray>()
         var span: Int
@@ -21,15 +24,13 @@ class PatchReader(
 
             openResource(resourceId).use {
                 val buffer = ByteBuffer.wrap(it.readBytes())
-                var offset = 0
+                var offset = totalBytes * 24
 
                 span = 20
 
                 buffer.order(ByteOrder.LITTLE_ENDIAN)
 
                 for (n in 0 until span) {
-                    // TODO (generalize): assuming 44.1 kHz, 16-bit (short), 2 channels
-                    val totalSamples = 44100 * 2 * 3
                     val samples = FloatArray(totalSamples)
                     var i = 0
 
@@ -40,7 +41,7 @@ class PatchReader(
                     }
 
                     notes.add(samples)
-                    offset += totalSamples
+                    offset += totalBytes
                     publishProgress(n, span)
                 }
 

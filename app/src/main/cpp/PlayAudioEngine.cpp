@@ -140,8 +140,27 @@ void PlayAudioEngine::closeOutputStream() {
 }
 
 void PlayAudioEngine::playNotes(int *indexes, int total) {
-    for (int i = 0; i < total; i++)
+    //int countEquals = 0;
+
+    for (int i = 0; i < total; i++) {
+        // restart fresh notes
         mPatch.pos[indexes[i]] = 0;
+
+        /*for (int j = 0; j < mNotes.total; j++)
+            if (indexes[i] == mNotes.indexes[j])
+                countEquals++;*/
+    }
+
+    /*int newTotal = mNotes.total + total - countEquals;
+    int *newIndexes = new int[newTotal];
+
+    for (int i = 0, n = 0; i < mNotes.total; i++) {
+        newIndexes[n++] = mNotes.indexes[i];
+
+        for (int j = 0; j < total; j++)
+            if (indexes[j] != mNotes.indexes[i])
+                newIndexes[n++] = indexes[j];
+    }*/
 
     mNotes.indexes = indexes;
     mNotes.total = total;
@@ -200,16 +219,29 @@ PlayAudioEngine::onAudioReady(oboe::AudioStream *audioStream, void *audioData, i
             int totalSamples = numFrames * channelCount;
             int totalNotes = mNotes.total;
             int *noteIndexes = new int[totalNotes];
+            bool isNotePlaying;
 
-            // copy to avoid changing inside the loop
+            // copying to avoid changing inside the loop
             std::copy(mNotes.indexes, mNotes.indexes + totalNotes, noteIndexes);
 
             for (int n = 0, noteIndex; n < totalNotes; n++) {
                 noteIndex = noteIndexes[n];
+                isNotePlaying = true;
 
-                for (int i = 0; i < totalSamples; i++)
-                    buffer[i] = mPatch.pos[noteIndex] < mPatch.sizes[noteIndex] ?
-                                mPatch.notes[noteIndex][mPatch.pos[noteIndex]++] : 0;
+                // filling the buffer
+                for (int i = 0; i < totalSamples &&
+                                (isNotePlaying =
+                                         mPatch.pos[noteIndex] < mPatch.sizes[noteIndex]); i++)
+                    buffer[i] = mPatch.notes[noteIndex][mPatch.pos[noteIndex]++];
+
+                // removing note when completed
+                /*if (!isNotePlaying) {
+                    mNotes.indexes = new int[totalNotes - 1];
+
+                    for (int j = 0; j < totalNotes; j++)
+                        if (j != n)
+                            mNotes.indexes[j] = noteIndexes[j];
+                }*/
             }
         } else {
             memset(static_cast<uint8_t *>(audioData), 0,
