@@ -1,11 +1,9 @@
-<h1>Articles show</h1>
+<h1>Edit article</h1>
 
-<strong>Title:</strong> <%= @article.title %><br />
-<strong>Description:</strong> <%= @article.description %>
+<%= render 'form' %>
 
 <p>
   <%= link_to 'List', articles_path %> |
-  <%= link_to 'Edit', edit_article_path(@article) %> |
   <%= link_to 'Delete', @article, method: :delete,
     data: { confirm: "Are you sure to delete article \"#{@article.title}\" (id=#{@article.id})?"} %>
 </p>
